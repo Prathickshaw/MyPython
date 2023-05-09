@@ -1,34 +1,44 @@
-import turtle
-from turtle import Turtle, Screen
-import random
-is_race_on = False
+from turtle import Screen
+from paddle import Paddle
+from ball import Ball
+from scoreboard import Scoreboard
+import time
+
 screen = Screen()
-screen.setup(width=500, height=400)
-user_bet = screen.textinput(title="Make your bet",prompt="Which turtle win the race? Enter a color:")
-print(user_bet)
-colors = ["red","orange","yellow","green","blue","purple"]
-y_position = [-78, -48, -10, 20, 50, 80]
-all_turtle = []
+screen.bgcolor("black")
+screen.setup(width=800, height=680)
+screen.title("pong")
+screen.tracer(0)
 
-for turtle_index in range(0,6):
-    new_turtle= Turtle(shape="turtle")
-    new_turtle.color(colors[turtle_index])
-    new_turtle.penup()
-    new_turtle.goto(x=-230, y=y_position[turtle_index])
-    all_turtle.append(new_turtle)
+r_paddle = Paddle((350, 0))
+l_paddle = Paddle((-350, 0))
+ball = Ball()
+scoreboard = Scoreboard()
 
-if user_bet:
-    is_race_on = True
-while is_race_on:
-    for turtle in all_turtle:
-        if turtle.xcor()> 230:
-            is_race_on = False
-            wining_color= turtle.pencolor()
-            if wining_color == user_bet:
-                print(f"you 've won! The {wining_color} turtle is the winner")
-            else:
-                print(f"you 've lost! The {wining_color} turtle is the winner")
-        rand_distance = random.randint(0,10)
-        turtle.forward(rand_distance)
+screen.listen()
+screen.onkey(r_paddle.go_up, "Up")
+screen.onkey(r_paddle.go_down, "Down")
+screen.onkey(l_paddle.go_up, "W")
+screen.onkey(l_paddle.go_down, "S")
+
+game_is_on = True
+while game_is_on:
+    screen.update()
+    ball.move()
+
+    if ball.ycor() > 280 or ball.ycor() < -200:
+        ball.bounce_y()
+
+    if ball.distance(r_paddle) < 50 and ball.xcor() > 320 or ball.distance(l_paddle) < 50 and ball.xcor() < -320:
+        ball.bounce_x()
+
+    if ball.xcor() > 380:
+        ball.reset_position()
+        scoreboard.l_point()
+
+
+    if ball.xcor() < -380:
+        ball.reset_position()
+        scoreboard.r_point()
 
 screen.exitonclick()
